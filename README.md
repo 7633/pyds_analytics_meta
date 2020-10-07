@@ -72,43 +72,44 @@ def osd_sink_pad_buffer_probe(pad, info, u_data):
                     break
         except StopIteration:
             break
+
+        print("----NvDsAnalytics Object Info----")
+    
+        l_obj = frame_meta.obj_meta_list
+        while l_obj is not None:
+            try:
+                # Casting l_obj.data to pyds.NvDsObjectMeta
+                obj_meta = pyds.NvDsObjectMeta.cast(l_obj.data)
+                user_meta_list = obj_meta.obj_user_meta_list
+                while user_meta_list is not None:
+                    try:
+                        user_meta = pyds.NvDsUserMeta.cast(user_meta_list.data)
+                        user_meta_data = user_meta.user_meta_data
+                        if user_meta.base_meta.meta_type != pyds.nvds_get_user_meta_type(
+                                "NVIDIA.DSANALYTICSOBJ.USER_META"):
+                            continue
+                        user_meta_analytics = pyds_analytics_meta.NvDsAnalyticsObjInfo.cast(user_meta.user_meta_data)
+                        print('unique_id:', user_meta_analytics.unique_id)
+                        print('lcStatus:', user_meta_analytics.lcStatus)
+                        print('dirStatus:', user_meta_analytics.dirStatus)
+                        print('ocStatus:', user_meta_analytics.ocStatus)
+                        print('roiStatus:', user_meta_analytics.roiStatus)
+                    except StopIteration:
+                        break
+                    try:
+                        user_meta_list = user_meta_list.next
+                    except StopIteration:
+                        break
+            except StopIteration:
+                break
+            try:
+                l_obj = l_obj.next
+            except StopIteration:
+                break
+        
         # Get next FrameMeta in list 
         try:
             l_frame=l_frame.next
-        except StopIteration:
-            break
-
-    print("----NvDsAnalytics Object Info----")
-    
-    l_obj = frame_meta.obj_meta_list
-    while l_obj is not None:
-        try:
-            # Casting l_obj.data to pyds.NvDsObjectMeta
-            obj_meta = pyds.NvDsObjectMeta.cast(l_obj.data)
-            user_meta_list = obj_meta.obj_user_meta_list
-            while user_meta_list is not None:
-                try:
-                    user_meta = pyds.NvDsUserMeta.cast(user_meta_list.data)
-                    user_meta_data = user_meta.user_meta_data
-                    if user_meta.base_meta.meta_type != pyds.nvds_get_user_meta_type(
-                            "NVIDIA.DSANALYTICSOBJ.USER_META"):
-                        continue
-                    user_meta_analytics = pyds_analytics_meta.NvDsAnalyticsObjInfo.cast(user_meta.user_meta_data)
-                    print('unique_id:', user_meta_analytics.unique_id)
-                    print('lcStatus:', user_meta_analytics.lcStatus)
-                    print('dirStatus:', user_meta_analytics.dirStatus)
-                    print('ocStatus:', user_meta_analytics.ocStatus)
-                    print('roiStatus:', user_meta_analytics.roiStatus)
-                except StopIteration:
-                    break
-                try:
-                    user_meta_list = user_meta_list.next
-                except StopIteration:
-                    break
-        except StopIteration:
-            break
-        try:
-            l_obj = l_obj.next
         except StopIteration:
             break
 
